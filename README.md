@@ -1,6 +1,7 @@
 # Zoo World
 
 Top-down 3D simulation in Unity 6000.3.6f1 (URP): frogs jump, snakes crawl, and what happens on contact is decided by the food chain.
+
 https://github.com/user-attachments/assets/a062fd99-d5a9-4b37-b56d-353b6d0a7441
 
 ## Running
