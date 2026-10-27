@@ -14,7 +14,7 @@ Configs come from Addressables, so build the Addressables content (Groups → Bu
 2. Create an `AnimalConfig` in `Assets/AddressableResources/Configs/Animals` (Create → Zoo World → Configs → Animal Config) and fill in the prefab, role and movement.
 3. Add the config to the `AnimalSpawner` in the scene with a spawn weight.
 
-No code needed. Both folders are addressable as a whole, so the new prefab and config show up in the reference pickers right away.
+No code needed. Both folders are addressable as a whole, so the new prefab and config show up in the reference pickers right away. A config without a prefab, role or movement fails `AnimalConfigIntegrityTests`.
 
 A new movement type is a `MovementConfig` subclass with data, an `IMovementStrategy` and one `case` in `MovementStrategyFactory`. If the `case` is missing, `MovementStrategyFactoryTests` fails.
 
@@ -24,7 +24,7 @@ A new food chain role is a `FoodChainRoleConfig` asset with the list of roles it
 
 Zenject with two installers: `BootstrapInstaller` (ProjectContext) for infrastructure and `GameplayInstaller` (scene) for gameplay. Code is split by feature in `Assets/Code/Gameplay/Features`.
 
-Every species uses the same `Animal` component, and what makes them different is data in `AnimalConfig`. Movement is a separate `RigidbodyMovement` component with its own `IMovementStrategy` instance. Animals are created only in `AnimalFactory`, removed only in `AnimalDeathService`, and reused through a pool. Spawning is an `AnimalSpawner` object in the scene with the list of animals it spawns, so the hierarchy shows what runs the game. `Time` and `Random` are behind services, so strategies and the screen-bounds math are tested without a scene.
+Every species uses the same `Animal` component, and what makes them different is data in `AnimalConfig`. Movement is a separate `RigidbodyMovement` component with its own `IMovementStrategy` instance. The low-poly models only follow it: `FacingAnimation` turns them along the movement, `HopAnimation` makes the frog hop. Animals are created only in `AnimalFactory`, removed only in `AnimalDeathService`, and reused through a pool. Spawning is an `AnimalSpawner` object in the scene with the list of animals it spawns, so the hierarchy shows what runs the game. `Time` and `Random` are behind services, so strategies and the screen-bounds math are tested without a scene.
 
 The HUD in `Assets/Code/Ui` only reads: the death counters use `IDeathStatisticsQuery`, and the "Tasty!" texts listen to `IPredationQuery` and `IAnimalDeathQuery`. Writing interfaces never reach the UI.
 
@@ -41,5 +41,6 @@ The HUD in `Assets/Code/Ui` only reads: the death counters use `IDeathStatistics
 - A contact goes through a chain of rules, predation first and bounce last, until one of them handles it. The alternative was a table of outcomes per role pair, but a new mechanic like shooting on contact would still need code there, while here it is one more rule.
 - Both bodies get `OnCollisionEnter`, so only the animal with the smaller `EntityId` handles the pair, and an animal eaten earlier in the same physics step is skipped.
 - Bounced prey are left to physics for half a second with strong damping, so they visibly fly apart and come to a stop, then stand still for another half second before moving on in the direction they flew. The timings live on the movement component of the prefab, so a heavier animal can be tuned in its variant.
+- The frog's hop is faked with scale as well as height. The camera looks straight down and is orthographic, so a model that only rises would not look any different.
 - No MV* in the UI. Widgets read the domain only through query interfaces and never get the writing ones, which is the separation MVP, MVVM and the like are there for. A presenter or view model per widget would add a class and a binding for two counters and a list of texts without changing who can do what.
 - Configs load synchronously. It's one scene, so there is nothing to wait for. Async loading is the first thing I'd add if content grew.
