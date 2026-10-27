@@ -40,7 +40,7 @@ namespace Code.Infrastructure.AssetManagement
 			if (_labelHandles.TryGetValue(label, out AsyncOperationHandle cachedHandle))
 				return new List<TAsset>((IList<TAsset>)cachedHandle.Result);
 
-			AsyncOperationHandle<IList<TAsset>> handle = Addressables.LoadAssetsAsync<TAsset>(label, null);
+			AsyncOperationHandle<IList<TAsset>> handle = Addressables.LoadAssetsAsync<TAsset>(label);
 			handle.WaitForCompletion();
 			EnsureSucceeded(handle, label);
 			_labelHandles.Add(label, handle);
@@ -64,7 +64,9 @@ namespace Code.Infrastructure.AssetManagement
 			Exception reason = handle.OperationException;
 			Addressables.Release(handle);
 
-			throw new InvalidOperationException($"Failed to load addressable '{key}' as {typeof(TResult).Name}", reason);
+			throw new InvalidOperationException(
+				$"Failed to load addressable '{key}' as {typeof(TResult).Name}",
+				reason);
 		}
 	}
 }

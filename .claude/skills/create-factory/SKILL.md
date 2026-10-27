@@ -11,7 +11,7 @@ Object / feature: $ARGUMENTS
 
 ### 1. Find the feature folder
 
-Factories go in the feature's `Services/` folder, next to the pool if there is one.
+Factories go in the feature's `Services/` folder.
 
 ### 2. Create the interface
 
@@ -29,9 +29,10 @@ At most 3 parameters; more go into a `{Product}SpawnRequest` struct in the featu
 
 ### 3. Create the class
 
-**Prefab-based product with a pool:**
+**Prefab-based product, reused through the shared pool:**
 
 ```csharp
+using Code.Infrastructure.Pooling;
 using UnityEngine;
 using Zenject;
 
@@ -39,32 +40,25 @@ namespace Code.Gameplay.Features.{Feature}.Services
 {
 	public class {Name}Factory : I{Name}Factory
 	{
-		private readonly IInstantiator _instantiator;
-		private readonly I{Name}Pool _{name}Pool;
-		private readonly Transform _root;
+		private readonly Transform _root = new GameObject("{Products}").transform;
 
-		public {Name}Factory(IInstantiator instantiator, I{Name}Pool {name}Pool)
+		private readonly IInstantiator _instantiator;
+		private readonly IPrefabPool _prefabPool;
+
+		public {Name}Factory(IInstantiator instantiator, IPrefabPool prefabPool)
 		{
 			_instantiator = instantiator;
-			_{name}Pool = {name}Pool;
-			_root = new GameObject("{Products}").transform;
+			_prefabPool = prefabPool;
 		}
 
 		public {Product} Create{Product}({Config} config, Vector3 at)
 		{
-			{Product} product = _{name}Pool.Has(config.Id)
-				? _{name}Pool.Get(config.Id)
-				: Instantiate(config);
+			if (_prefabPool.TryGet(config.Prefab, out {Product} product) == false)
+				product = _instantiator.InstantiatePrefabForComponent<{Product}>(config.Prefab, _root);
 
-			product.Spawn(at);
-
-			return product;
-		}
-
-		private {Product} Instantiate({Config} config)
-		{
-			{Product} product = _instantiator.InstantiatePrefabForComponent<{Product}>(config.Prefab, _root);
 			product.Setup(config);
+			product.gameObject.SetActive(true);
+			product.transform.position = at;
 
 			return product;
 		}
@@ -72,7 +66,7 @@ namespace Code.Gameplay.Features.{Feature}.Services
 }
 ```
 
-**Plain C# product chosen by config type:** a `switch` over the config type with a `default` that throws `ArgumentException`, plus a test that every config subclass is covered.
+**Plain C# product chosen by config type:** a `switch` over the config type where each case is `_instantiator.Instantiate<{Product}>(new object[] { config })`, so Zenject injects the product's services, and a `default` that throws `ArgumentException`. Cover it with a test that builds every config subclass through a real `DiContainer`: it catches a missing `case`, a constructor mismatch and a missing binding.
 
 ### 4. Bind it in GameplayInstaller
 
@@ -90,7 +84,7 @@ Refresh Unity and read the console (`verify-in-unity` skill). If the factory cre
 
 - A factory is the **only** place that creates its product, and it returns the product **fully valid in one call** — set up, positioned, with its strategy, ready to tick.
 - Prefabs are instantiated only through `IInstantiator` (so Zenject injects into them). Never `Object.Instantiate`, never `DiContainer`.
-- Pools keep instances per config id (the config's `[ID]` GUID) behind `Has` / `Get` / `Put`, and `Put` calls `IPooledHandler.OnPutToPool()` on the product's components.
+- Pooled products go through the shared `IPrefabPool`, keyed by prefab: `TryGet` before instantiating. Whoever removes the product calls `Put(prefab, product)`, which calls `IPooledHandler.OnPutToPool()` on its components and deactivates it.
 - A factory may read configs and use `IRandomService`; it never makes gameplay decisions.
 - Never `switch` on the type of a game object. A `switch` on a polymorphic config type is allowed only with a test that covers every subclass.
 - Namespace: `Code.Gameplay.Features.{Feature}.Services`.

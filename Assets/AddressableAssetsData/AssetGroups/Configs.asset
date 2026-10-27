@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Configs
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Configs
+  m_GUID: 39449f0690c6346c3bbd6b9abed3178f
+  m_SerializeEntries:
+  - m_GUID: 0c7f0dfcbdeed4b0389509c4cc241eae
+    m_Address: animals_folder
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - animal_configs
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 240cc0dc82b4b4d1b8a8196ad39e6cc2
+    m_Address: world_config
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 2cc5372aa4837418980ba73aab378012, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 695bf114434ef45648d3bd2c648c7824, type: 2}
+    - {fileID: 11400000, guid: a2e1558e28cd54d6a8b00cbe6ce4cb40, type: 2}
