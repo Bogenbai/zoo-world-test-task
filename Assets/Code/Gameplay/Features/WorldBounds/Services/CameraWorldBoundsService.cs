@@ -8,7 +8,7 @@ namespace Code.Gameplay.Features.WorldBounds.Services
 	public class CameraWorldBoundsService : IWorldBoundsService
 	{
 		private WorldRect _bounds;
-		private Vector2Int _boundsScreenSize;
+		private Vector2Int _boundsPixelSize;
 
 		private readonly Camera _camera;
 		private readonly IConfigsService _configsService;
@@ -23,12 +23,12 @@ namespace Code.Gameplay.Features.WorldBounds.Services
 
 		public WorldRect GetBounds()
 		{
-			Vector2Int screenSize = new(Screen.width, Screen.height);
+			Vector2Int pixelSize = new(_camera.pixelWidth, _camera.pixelHeight);
 
-			if (screenSize != _boundsScreenSize)
+			if (pixelSize != _boundsPixelSize)
 			{
 				_bounds = CalculateBounds();
-				_boundsScreenSize = screenSize;
+				_boundsPixelSize = pixelSize;
 			}
 
 			return _bounds;
