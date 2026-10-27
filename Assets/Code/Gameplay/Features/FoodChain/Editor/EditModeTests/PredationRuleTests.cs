@@ -22,6 +22,8 @@ namespace Code.Gameplay.Features.FoodChain.Editor.EditModeTests
 		private IAnimalDeathService _animalDeathService;
 		private PredationRule _rule;
 
+		private Animal _reportedPredator;
+
 		[SetUp]
 		public void SetUp()
 		{
@@ -33,11 +35,15 @@ namespace Code.Gameplay.Features.FoodChain.Editor.EditModeTests
 			_randomService = Substitute.For<IRandomService>();
 			_animalDeathService = Substitute.For<IAnimalDeathService>();
 			_rule = new PredationRule(_randomService, _animalDeathService);
+
+			_reportedPredator = null;
+			_rule.OnPredatorAte += HandlePredatorAte;
 		}
 
 		[TearDown]
 		public void TearDown()
 		{
+			_rule.OnPredatorAte -= HandlePredatorAte;
 			_objects.Dispose();
 		}
 
@@ -54,6 +60,7 @@ namespace Code.Gameplay.Features.FoodChain.Editor.EditModeTests
 			// Assert
 			handled.Should().BeFalse("prey eat nobody, so the bounce rule decides");
 			_animalDeathService.DidNotReceive().Kill(Arg.Any<Animal>());
+			_reportedPredator.Should().BeNull("nobody ate");
 		}
 
 		[Test]
@@ -93,6 +100,39 @@ namespace Code.Gameplay.Features.FoodChain.Editor.EditModeTests
 		}
 
 		[Test]
+		public void Eating_ShouldReportPredator([Values] bool predatorFirst)
+		{
+			// Arrange
+			Animal predator = _objects.CreateAnimal(_predator);
+			Animal prey = _objects.CreateAnimal(_prey);
+
+			// Act
+			if (predatorFirst)
+				_rule.TryHandle(predator, prey);
+			else
+				_rule.TryHandle(prey, predator);
+
+			// Assert
+			_reportedPredator.Should().BeSameAs(predator, "the \"Tasty!\" text appears under the one who ate");
+		}
+
+		[Test]
+		public void TwoPredators_ShouldReportSurvivor([Values] bool coinFlip)
+		{
+			// Arrange
+			_randomService.Chance(Arg.Any<float>()).Returns(coinFlip);
+			Animal first = _objects.CreateAnimal(_predator);
+			Animal second = _objects.CreateAnimal(_predator);
+
+			// Act
+			_rule.TryHandle(first, second);
+
+			// Assert
+			Animal survivor = coinFlip ? first : second;
+			_reportedPredator.Should().BeSameAs(survivor, "the predator that won the coin flip is the one that ate");
+		}
+
+		[Test]
 		public void TwoPredators_ShouldFlipFairCoin()
 		{
 			// Arrange
@@ -105,5 +145,7 @@ namespace Code.Gameplay.Features.FoodChain.Editor.EditModeTests
 			// Assert
 			_randomService.Received(1).Chance(0.5f);
 		}
+
+		private void HandlePredatorAte(Animal predator) => _reportedPredator = predator;
 	}
 }

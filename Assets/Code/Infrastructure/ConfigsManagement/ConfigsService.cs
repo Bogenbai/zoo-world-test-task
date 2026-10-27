@@ -1,4 +1,5 @@
 using Code.Gameplay.Features.Animals.Configs;
+using Code.Gameplay.Features.FoodChain.Configs;
 using Code.Gameplay.Features.WorldBounds.Configs;
 using Code.Infrastructure.AssetManagement;
 using UnityEngine.AddressableAssets;
@@ -24,6 +25,9 @@ namespace Code.Infrastructure.ConfigsManagement
 
 		public AnimalConfig GetAnimalConfig(AssetReferenceT<AnimalConfig> reference) =>
 			_assetsService.Load<AnimalConfig>(reference);
+
+		public FoodChainRoleConfig GetFoodChainRole(AssetReferenceT<FoodChainRoleConfig> reference) =>
+			_assetsService.Load<FoodChainRoleConfig>(reference);
 
 		public WorldConfig GetWorldConfig() => _worldConfig;
 	}

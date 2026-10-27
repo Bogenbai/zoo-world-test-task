@@ -1,3 +1,4 @@
+using System;
 using Code.Gameplay.Common.Random;
 using Code.Gameplay.Features.Animals.Behaviours;
 using Code.Gameplay.Features.Animals.Services;
@@ -6,12 +7,14 @@ using Code.Gameplay.Features.FoodChain.Extensions;
 
 namespace Code.Gameplay.Features.FoodChain.Services
 {
-	public class PredationRule : ICollisionRule
+	public class PredationRule : ICollisionRule, IPredationQuery
 	{
 		private readonly IRandomService _randomService;
 		private readonly IAnimalDeathService _animalDeathService;
 
 		private const float CoinFlipChance = 0.5f;
+
+		public event Action<Animal> OnPredatorAte;
 
 		public PredationRule(IRandomService randomService, IAnimalDeathService animalDeathService)
 		{
@@ -27,10 +30,13 @@ namespace Code.Gameplay.Features.FoodChain.Services
 			if (!firstEatsSecond && !secondEatsFirst)
 				return false;
 
+			Animal predator = firstEatsSecond ? first : second;
+
 			if (firstEatsSecond && secondEatsFirst)
-				_animalDeathService.Kill(_randomService.Chance(CoinFlipChance) ? second : first);
-			else
-				_animalDeathService.Kill(firstEatsSecond ? second : first);
+				predator = _randomService.Chance(CoinFlipChance) ? first : second;
+
+			_animalDeathService.Kill(predator == first ? second : first);
+			OnPredatorAte?.Invoke(predator);
 
 			return true;
 		}
