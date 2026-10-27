@@ -333,26 +333,6 @@ private ClipTransition _openAnimation;
 
 You can use the `[Space]` attribute to make it even more readable in Unity's inspector.
 
-## Condition checks
-
-Wrong. Sometimes it's really easy to miss `!`:
-
-```csharp
-if (!someBool)
-{
-	DoStuff();
-}
-```
-
-Correct. Use `== false` instead:
-
-```csharp
-if (someBool == false)
-{
-	DoStuff();
-}
-```
-
 ## File separation
 
 Each class, enum, interface etc. should be in a separate file. The exception is derived interfaces/classes with the same name:
