@@ -1,7 +1,10 @@
 using Code.Gameplay.Features.Animals.Behaviours;
 using Code.Gameplay.Features.Animals.Services;
+using Code.Gameplay.Features.FoodChain.Configs;
+using Code.Gameplay.Features.Statistics.Services;
 using Code.Infrastructure;
 using Code.Infrastructure.Pooling;
+using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using UnityEngine;
@@ -15,8 +18,11 @@ namespace Code.Gameplay.Features.Animals.Editor.EditModeTests
 		private Animal _animal;
 
 		private IAnimalRegistry _animalRegistry;
+		private IDeathStatisticsService _deathStatisticsService;
 		private IPrefabPool _prefabPool;
 		private AnimalDeathService _service;
+
+		private Animal _reportedAnimal;
 
 		[SetUp]
 		public void SetUp()
@@ -25,13 +31,18 @@ namespace Code.Gameplay.Features.Animals.Editor.EditModeTests
 			_animal = _objects.CreateAnimal(_objects.CreateRole());
 
 			_animalRegistry = Substitute.For<IAnimalRegistry>();
+			_deathStatisticsService = Substitute.For<IDeathStatisticsService>();
 			_prefabPool = Substitute.For<IPrefabPool>();
-			_service = new AnimalDeathService(_animalRegistry, _prefabPool);
+			_service = new AnimalDeathService(_animalRegistry, _deathStatisticsService, _prefabPool);
+
+			_reportedAnimal = null;
+			_service.OnAnimalDied += HandleAnimalDied;
 		}
 
 		[TearDown]
 		public void TearDown()
 		{
+			_service.OnAnimalDied -= HandleAnimalDied;
 			_objects.Dispose();
 		}
 
@@ -50,7 +61,33 @@ namespace Code.Gameplay.Features.Animals.Editor.EditModeTests
 		}
 
 		[Test]
-		public void AlreadyRemovedAnimal_ShouldNotGoToPoolAgain()
+		public void KilledAnimal_ShouldCountForItsRole()
+		{
+			// Arrange
+			_animalRegistry.Remove(_animal).Returns(true);
+
+			// Act
+			_service.Kill(_animal);
+
+			// Assert
+			_deathStatisticsService.Received(1).RegisterDeath(_animal.Config.Role);
+		}
+
+		[Test]
+		public void KilledAnimal_ShouldBeReported()
+		{
+			// Arrange
+			_animalRegistry.Remove(_animal).Returns(true);
+
+			// Act
+			_service.Kill(_animal);
+
+			// Assert
+			_reportedAnimal.Should().BeSameAs(_animal, "listeners have to drop whatever they attached to it");
+		}
+
+		[Test]
+		public void AlreadyRemovedAnimal_ShouldBeIgnored()
 		{
 			// Arrange
 			_animalRegistry.Remove(_animal).Returns(false);
@@ -60,6 +97,10 @@ namespace Code.Gameplay.Features.Animals.Editor.EditModeTests
 
 			// Assert
 			_prefabPool.DidNotReceive().Put(Arg.Any<string>(), Arg.Any<Component>());
+			_deathStatisticsService.DidNotReceive().RegisterDeath(Arg.Any<FoodChainRoleConfig>());
+			_reportedAnimal.Should().BeNull("an animal dies only once");
 		}
+
+		private void HandleAnimalDied(Animal animal) => _reportedAnimal = animal;
 	}
 }
