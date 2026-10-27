@@ -37,7 +37,7 @@ Detailed rules live in `.claude/rules/` — read the relevant one before making 
 
 ## DI (Zenject)
 
-- Composition root: a `MonoInstaller` on the scene's `SceneContext`, split into private `Bind{Area}Services()` methods.
+- Composition roots: `BootstrapInstaller` on `Assets/Resources/ProjectContext.prefab` binds project-wide infrastructure (time, random, assets, configs); `GameplayInstaller` on the scene's `SceneContext` binds gameplay features. Both are split into private `Bind{Area}Services()` methods.
 - Every service, factory and query is an interface + class, bound with `Container.BindInterfacesTo<X>().AsSingle()`.
 - MonoBehaviours receive dependencies through `[Inject] private void Construct(...)`; scene objects are injected by `SceneContext` automatically.
 - Prefabs are instantiated through `IInstantiator`, and only inside factories.

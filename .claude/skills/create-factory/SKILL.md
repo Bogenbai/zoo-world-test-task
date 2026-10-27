@@ -32,7 +32,6 @@ At most 3 parameters; more go into a `{Product}SpawnRequest` struct in the featu
 **Prefab-based product with a pool:**
 
 ```csharp
-using Code.Infrastructure.Identifiers.Services;
 using UnityEngine;
 using Zenject;
 
@@ -42,17 +41,12 @@ namespace Code.Gameplay.Features.{Feature}.Services
 	{
 		private readonly IInstantiator _instantiator;
 		private readonly I{Name}Pool _{name}Pool;
-		private readonly IIdentifierService _identifierService;
 		private readonly Transform _root;
 
-		public {Name}Factory(
-			IInstantiator instantiator,
-			I{Name}Pool {name}Pool,
-			IIdentifierService identifierService)
+		public {Name}Factory(IInstantiator instantiator, I{Name}Pool {name}Pool)
 		{
 			_instantiator = instantiator;
 			_{name}Pool = {name}Pool;
-			_identifierService = identifierService;
 			_root = new GameObject("{Products}").transform;
 		}
 
@@ -70,7 +64,7 @@ namespace Code.Gameplay.Features.{Feature}.Services
 		private {Product} Instantiate({Config} config)
 		{
 			{Product} product = _instantiator.InstantiatePrefabForComponent<{Product}>(config.Prefab, _root);
-			product.Setup(_identifierService.Next(), config);
+			product.Setup(config);
 
 			return product;
 		}
@@ -80,7 +74,7 @@ namespace Code.Gameplay.Features.{Feature}.Services
 
 **Plain C# product chosen by config type:** a `switch` over the config type with a `default` that throws `ArgumentException`, plus a test that every config subclass is covered.
 
-### 4. Bind it in ZooInstaller
+### 4. Bind it in GameplayInstaller
 
 ```csharp
 Container.BindInterfacesTo<{Name}Factory>().AsSingle();
@@ -96,8 +90,8 @@ Refresh Unity and read the console (`verify-in-unity` skill). If the factory cre
 
 - A factory is the **only** place that creates its product, and it returns the product **fully valid in one call** — set up, positioned, with its strategy, ready to tick.
 - Prefabs are instantiated only through `IInstantiator` (so Zenject injects into them). Never `Object.Instantiate`, never `DiContainer`.
-- Pools keep instances per config id behind `Has` / `Get` / `Put`, and `Put` calls `IPooledHandler.OnPutToPool()` on the product's components.
-- A factory may read configs and use `IRandomService` / `IIdentifierService`; it never makes gameplay decisions.
+- Pools keep instances per config id (the config's `[ID]` GUID) behind `Has` / `Get` / `Put`, and `Put` calls `IPooledHandler.OnPutToPool()` on the product's components.
+- A factory may read configs and use `IRandomService`; it never makes gameplay decisions.
 - Never `switch` on the type of a game object. A `switch` on a polymorphic config type is allowed only with a test that covers every subclass.
 - Namespace: `Code.Gameplay.Features.{Feature}.Services`.
 - Follow `.claude/rules/CodingGuidelines.md`.

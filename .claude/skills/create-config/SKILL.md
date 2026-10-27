@@ -41,6 +41,17 @@ namespace Code.Gameplay.Features.{Feature}.Configs
 
 If the `[CreateAssetMenu]` line goes over 120 characters, put each argument on its own line.
 
+A config that is one of many assets of its type (a collection) also gets a unique id:
+
+```csharp
+[SerializeField, ID]
+private string id;
+
+public string Id => id;
+```
+
+`[ID]` is `Code.Infrastructure.Identifiers.IDAttribute`; its drawer assigns the GUID from the inspector. Through Unity MCP, set the field to `System.Guid.NewGuid().ToString()` when creating the asset. Never regenerate an existing id.
+
 ### 3. Expose it through IConfigsService
 
 Read `Assets/Code/Infrastructure/ConfigsManagement/IConfigsService.cs` and `ConfigsService.cs`, then:

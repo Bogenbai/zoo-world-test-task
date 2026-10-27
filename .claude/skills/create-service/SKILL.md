@@ -82,9 +82,9 @@ namespace Code.Gameplay.Features.{Feature}.Services
 
 A stateful service implements both interfaces (`public class {Name}Service : I{Name}Service, I{Name}Query`) and raises `On{What}Changed` after every write. If it needs a Zenject lifecycle hook, add `IInitializable`, `ITickable`, `IFixedTickable` or `IDisposable` to the class, not to its public interfaces.
 
-### 4. Bind it in ZooInstaller
+### 4. Bind it in an installer
 
-Open `Assets/Code/Infrastructure/Installers/ZooInstaller.cs`, find (or add) the `Bind{Feature}Services()` method and add:
+Gameplay features go into `Assets/Code/Infrastructure/Installers/GameplayInstaller.cs` (scene `SceneContext`), project-wide infrastructure into `BootstrapInstaller.cs` (`ProjectContext`). Find (or add) the `Bind{Area}Services()` method and add:
 
 ```csharp
 Container.BindInterfacesTo<{Name}Service>().AsSingle();

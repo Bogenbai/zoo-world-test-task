@@ -63,7 +63,7 @@ namespace Code.Ui.{Feature}
 
 ### 3. Put it in the scene
 
-Through Unity MCP or by hand: add the widget under the `Canvas` (Screen Space – Overlay, Canvas Scaler 1920×1080, match 0.5), anchor it, wire the serialized `TMP_Text` fields, turn off Raycast Target on every text. The widget is a scene object, so `SceneContext` injects it — no binding in `ZooInstaller` is needed.
+Through Unity MCP or by hand: add the widget under the `Canvas` (Screen Space – Overlay, Canvas Scaler 1920×1080, match 0.5), anchor it, wire the serialized `TMP_Text` fields, turn off Raycast Target on every text. The widget is a scene object, so `SceneContext` injects it — no installer binding is needed.
 
 For a widget built from a prefab at runtime (floating texts, labels that follow objects), instantiate through `IInstantiator` so it gets injected.
 
