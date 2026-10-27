@@ -29,6 +29,7 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 		[Test]
 		public void EveryMovementConfigType_ShouldHaveStrategy()
 		{
+			// Act
 			List<string> unsupported = new();
 
 			foreach (Type configType in TypeCache.GetTypesDerivedFrom<MovementConfig>())
@@ -48,14 +49,17 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 				}
 			}
 
+			// Assert
 			unsupported.Should().BeEmpty("every movement config type needs a case in MovementStrategyFactory");
 		}
 
 		[Test]
 		public void NullConfig_ShouldThrow()
 		{
+			// Act
 			Action create = () => _factory.CreateStrategy(null);
 
+			// Assert
 			create.Should().Throw<ArgumentNullException>("an animal without a movement config cannot move");
 		}
 	}

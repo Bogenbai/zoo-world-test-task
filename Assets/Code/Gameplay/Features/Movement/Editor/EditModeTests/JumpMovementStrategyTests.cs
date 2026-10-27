@@ -36,8 +36,13 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 		[Test]
 		public void FirstTick_ShouldStartJump()
 		{
-			Vector3 velocity = CreateStrategy().Tick(Vector3.forward, Step);
+			// Arrange
+			JumpMovementStrategy strategy = CreateStrategy();
 
+			// Act
+			Vector3 velocity = strategy.Tick(Vector3.forward, Step);
+
+			// Assert
 			velocity.magnitude.Should().BeGreaterThan(0f, "an animal starts moving as soon as it appears");
 		}
 
@@ -45,10 +50,13 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 		[TestCase(0.03f)]
 		public void OneJump_ShouldCoverExactJumpDistance(float deltaTime)
 		{
+			// Arrange
 			int tickCount = Mathf.FloorToInt(JumpInterval / deltaTime);
 
+			// Act
 			List<Vector3> velocities = Simulate(CreateStrategy(), deltaTime, tickCount);
 
+			// Assert
 			float distance = 0f;
 
 			foreach (Vector3 velocity in velocities)
@@ -60,18 +68,21 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 		[Test]
 		public void BetweenJumps_ShouldNotMove()
 		{
+			// Act
 			List<Vector3> velocities = Simulate(CreateStrategy(), Step, TicksPerInterval);
 
+			// Assert
 			List<Vector3> pause = velocities.GetRange(TicksPerJump, TicksPerInterval - TicksPerJump);
-
 			pause.Should().OnlyContain(velocity => velocity == Vector3.zero, "the animal rests until the next jump");
 		}
 
 		[Test]
 		public void NextJump_ShouldStartAfterInterval()
 		{
+			// Act
 			List<Vector3> velocities = Simulate(CreateStrategy(), Step, TicksPerInterval + 1);
 
+			// Assert
 			velocities[TicksPerInterval - 1].Should().Be(Vector3.zero, "the interval has not passed yet");
 			velocities[TicksPerInterval].magnitude.Should().BeGreaterThan(0f, "a new jump starts every interval");
 		}
@@ -79,28 +90,41 @@ namespace Code.Gameplay.Features.Movement.Editor.EditModeTests
 		[Test]
 		public void Jump_ShouldTurnByRandomAngle()
 		{
+			// Arrange
 			_randomService.Range(Arg.Any<float>(), Arg.Any<float>()).Returns(90f);
+			JumpMovementStrategy strategy = CreateStrategy();
 
-			Vector3 velocity = CreateStrategy().Tick(Vector3.forward, Step);
+			// Act
+			Vector3 velocity = strategy.Tick(Vector3.forward, Step);
 
+			// Assert
 			float turn = Vector3.Angle(Vector3.forward, velocity);
-
 			turn.Should().BeApproximately(90f, AngleTolerance, "the random angle is applied at the start of the jump");
 		}
 
 		[Test]
 		public void TurnAngle_ShouldBeDrawnWithinMaxTurnAngle()
 		{
-			CreateStrategy().Tick(Vector3.forward, Step);
+			// Arrange
+			JumpMovementStrategy strategy = CreateStrategy();
 
+			// Act
+			strategy.Tick(Vector3.forward, Step);
+
+			// Assert
 			_randomService.Received(1).Range(-MaxTurnAngle, MaxTurnAngle);
 		}
 
 		[Test]
 		public void ZeroDeltaTime_ShouldNotMove()
 		{
-			Vector3 velocity = CreateStrategy().Tick(Vector3.forward, 0f);
+			// Arrange
+			JumpMovementStrategy strategy = CreateStrategy();
 
+			// Act
+			Vector3 velocity = strategy.Tick(Vector3.forward, 0f);
+
+			// Assert
 			velocity.Should().Be(Vector3.zero, "no time has passed");
 		}
 
