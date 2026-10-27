@@ -15,8 +15,8 @@ Detailed rules live in `.claude/rules/` — read the relevant one before making 
 
 - The Unity project is the repository root.
 - All game code is under `Assets/Code/`, organized by feature: `Gameplay/Features/<Feature>/{Behaviours, Configs, Data, Extensions, Services, Strategies, Editor/EditModeTests}`.
-- `Assets/Code/Gameplay/Common/` — wrappers over Unity statics (`Random/`, `Time/`); `Assets/Code/Gameplay/Configs/` — game-wide configs.
-- `Assets/Code/Infrastructure/` — installers, configs and assets management, identifiers, pooling interfaces, `Constants`, `TestCategories`.
+- `Assets/Code/Gameplay/Common/` — wrappers over Unity statics (`Random/`, `Time/`).
+- `Assets/Code/Infrastructure/` — installers, configs and assets management, pooling, `Constants`, `TestCategories`.
 - `Assets/Code/Ui/<Feature>/` — uGUI widgets.
 - `Assets/AddressableResources/Configs/` — config assets loaded through Addressables.
 - `Assets/Plugins/` — vendored third-party code: Zenject (Extenject 9.3.1) and `TestingDependencies` (FluentAssertions 6.4, NSubstitute, Castle.Core; editor-only). **Never edit anything in `Assets/Plugins/`.**
@@ -48,14 +48,13 @@ Detailed rules live in `.claude/rules/` — read the relevant one before making 
 - ScriptableObjects (or `[Serializable]` classes nested in them) hold **data only**: `[SerializeField] private` fields with getter properties. No methods, no logic, no lookups — derived values go into services or extension methods.
 - `[CreateAssetMenu(menuName = Constants.GameName + "/Configs/<Name> Config", fileName = "<Name>Config")]`.
 - `Tooltip`s explain *why* a value is what it is, not what the field is.
-- Configs are loaded through `IConfigsService`, using the Addressables labels and keys in `Constants.Addressables`.
+- Configs are loaded through `IConfigsService`, by the Addressables keys in `Constants.Addressables` or by an `AssetReference`.
 
 ## Code Conventions
 
 Read `.claude/rules/CodingGuidelines.md` before writing code. The rules that are easiest to miss:
 - Tabs (size 4), Allman braces, lines up to 120 characters, block-scoped namespaces that mirror the folder path (`Code.Gameplay.Features.Animals.Services`).
 - Explicit types, never `var`; `Item item = new();`.
-- `== false` instead of `!`.
 - Private fields `_camelCase`; serialized fields without the underscore, `[SerializeField]` on the same line when it is the only attribute.
 - Events `On{X}`, handlers `Handle{X}`, never a lambda as a handler, every subscription has a matching unsubscription.
 - At most 3 method arguments; more go into a `*Request` / `*Dto` struct in the feature's `Data/` folder. Constructors and `Construct` are the exception, one argument per line.
