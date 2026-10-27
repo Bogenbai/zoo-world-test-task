@@ -1,0 +1,43 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = tab
+indent_size = 4
+tab_width = 4
+max_line_length = 120
+
+# Explicit types instead of var
+csharp_style_var_for_built_in_types = false:warning
+csharp_style_var_when_type_is_apparent = false:warning
+csharp_style_var_elsewhere = false:warning
+
+# Target-typed new: Item item = new();
+csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
+
+# Allman braces
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# Block-scoped namespaces
+csharp_style_namespace_declarations = block_scoped:warning
+
+# Naming: constants PascalCase. No rule for private fields on purpose: editorconfig can't tell
+# [SerializeField] fields (camelCase) from plain private fields (_camelCase)
+dotnet_naming_rule.constants_pascal.symbols = constants
+dotnet_naming_rule.constants_pascal.style = pascal_case
+dotnet_naming_rule.constants_pascal.severity = suggestion
+dotnet_naming_symbols.constants.applicable_kinds = field, local
+dotnet_naming_symbols.constants.required_modifiers = const
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+[*.{json,asmdef,yml,yaml}]
+indent_style = space
+indent_size = 2
