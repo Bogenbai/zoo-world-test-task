@@ -67,6 +67,7 @@ Refresh Unity, read the console, run the EditMode tests (`verify-in-unity` skill
 - **Data only.** No methods, no logic, no lookups, no computed properties. Derived values go into a service or an extension method in the feature's `Extensions/` folder.
 - All fields are `[SerializeField] private` with public getter properties.
 - `Tooltip`s explain *why* a value is what it is.
+- Prefabs and other heavy assets are referenced through `AssetReference` / `AssetReferencePrefab<T>` (`Code.Infrastructure.AssetManagement`), not directly: a direct reference loads the asset together with the config. Other configs are referenced directly.
 - Read-only at runtime. Runtime state never lives in a config.
 - Namespace mirrors the folder: `Code.Gameplay.Features.{Feature}.Configs`.
 - Follow `.claude/rules/CodingGuidelines.md`.

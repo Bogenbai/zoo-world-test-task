@@ -1,4 +1,6 @@
 using Code.Gameplay.Features.Animals.Services;
+using Code.Gameplay.Features.Collisions.Services;
+using Code.Gameplay.Features.FoodChain.Services;
 using Code.Gameplay.Features.Movement.Services;
 using Code.Gameplay.Features.WorldBounds.Services;
 using Code.Infrastructure.Pooling;
@@ -17,6 +19,7 @@ namespace Code.Infrastructure.Installers
 			BindWorldServices();
 			BindMovementServices();
 			BindAnimalServices();
+			BindCollisionServices();
 		}
 
 		private void BindPoolingServices()
@@ -40,6 +43,14 @@ namespace Code.Infrastructure.Installers
 		{
 			Container.BindInterfacesTo<AnimalFactory>().AsSingle();
 			Container.BindInterfacesTo<AnimalRegistry>().AsSingle();
+			Container.BindInterfacesTo<AnimalDeathService>().AsSingle();
+		}
+
+		private void BindCollisionServices()
+		{
+			Container.BindInterfacesTo<PredationRule>().AsSingle();
+			Container.BindInterfacesTo<BounceRule>().AsSingle();
+			Container.BindInterfacesTo<AnimalCollisionService>().AsSingle();
 		}
 	}
 }

@@ -62,6 +62,7 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: 6f87a36cdf61246f4987820b41dfce6c, type: 2}
   - {fileID: 11400000, guid: da16e997f9ce4462594f3141dff848ba, type: 2}
+  - {fileID: 11400000, guid: c300c62adcd71425b955e81850463d35, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -101,7 +102,6 @@ MonoBehaviour:
   m_LabelTable:
     m_LabelNames:
     - default
-    - animal_configs
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: ef730ede66761491cb1be1a2ad930eee, type: 2}

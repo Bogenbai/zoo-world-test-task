@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using Code.Gameplay.Common.Random;
 using Code.Gameplay.Common.Time;
 using Code.Gameplay.Features.Animals.Configs;
+using Code.Gameplay.Features.Animals.Data;
 using Code.Gameplay.Features.Animals.Services;
 using Code.Gameplay.Features.WorldBounds.Data;
 using Code.Gameplay.Features.WorldBounds.Services;
@@ -12,6 +14,8 @@ namespace Code.Gameplay.Features.Animals.Behaviours
 {
 	public class AnimalSpawner : MonoBehaviour
 	{
+		[SerializeField] private List<AnimalSpawnEntry> animalsToSpawn = new();
+
 		[SerializeField, Min(0.1f)]
 		private float minSpawnInterval = 1f;
 
@@ -57,7 +61,7 @@ namespace Code.Gameplay.Features.Animals.Behaviours
 
 			_timeUntilNextSpawn = _randomService.Range(minSpawnInterval, maxSpawnInterval);
 
-			if (_animalRegistry.GetAliveCount() >= maxAliveAnimals)
+			if (_animalRegistry.GetCount() >= maxAliveAnimals)
 				return;
 
 			SpawnRandomAnimal();
@@ -65,9 +69,8 @@ namespace Code.Gameplay.Features.Animals.Behaviours
 
 		private void SpawnRandomAnimal()
 		{
-			AnimalConfig config = _randomService.PickWeighted(
-				_configsService.GetAnimalConfigs(),
-				animalConfig => animalConfig.SpawnWeight);
+			AnimalSpawnEntry entry = _randomService.PickWeighted(animalsToSpawn, spawnEntry => spawnEntry.Weight);
+			AnimalConfig config = _configsService.GetAnimalConfig(entry.Animal);
 
 			_animalFactory.CreateAnimal(config, PickSpawnPoint(), PickDirection());
 		}

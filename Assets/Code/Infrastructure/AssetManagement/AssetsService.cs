@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using Object = UnityEngine.Object;
@@ -34,6 +35,13 @@ namespace Code.Infrastructure.AssetManagement
 
 			return handle.Result;
 		}
+
+		public TAsset Load<TAsset>(AssetReference reference) where TAsset : Object =>
+			Load<TAsset>(reference.AssetGUID);
+
+		public TComponent LoadPrefab<TComponent>(AssetReferencePrefab<TComponent> reference)
+			where TComponent : Component =>
+			Load<GameObject>(reference).GetComponent<TComponent>();
 
 		public IReadOnlyList<TAsset> LoadAllByLabel<TAsset>(string label) where TAsset : Object
 		{

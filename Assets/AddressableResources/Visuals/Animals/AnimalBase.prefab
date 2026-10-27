@@ -110,6 +110,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.Gameplay.Features.Movement.Behaviours.RigidbodyMovement
   body: {fileID: 2027652405203237750}
+  knockbackDuration: 0.5
+  knockbackDamping: 6
+  recoveryDelay: 0.5
 --- !u!1 &9119797026575661657
 GameObject:
   m_ObjectHideFlags: 0

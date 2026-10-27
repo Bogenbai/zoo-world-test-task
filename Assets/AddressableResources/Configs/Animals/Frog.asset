@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1349896be8b248239418b5a8235d737, type: 3}
   m_Name: Frog
   m_EditorClassIdentifier: Assembly-CSharp::Code.Gameplay.Features.Animals.Configs.AnimalConfig
-  prefab: {fileID: 631313216210847259, guid: d442aeaf360104d64832edb77d2d7063, type: 3}
+  prefab:
+    m_AssetGUID: d442aeaf360104d64832edb77d2d7063
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   role: {fileID: 11400000, guid: c00a46b65abb34640a4f97061b01f933, type: 2}
-  spawnWeight: 2
   movement:
     rid: 2362995148698157160
   references:
