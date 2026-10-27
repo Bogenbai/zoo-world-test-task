@@ -540,6 +540,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 710b408f5373d4694aff0152511b98eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Code.Gameplay.Features.Animals.Behaviours.AnimalSpawner
+  animalsToSpawn:
+  - animal:
+      m_AssetGUID: 59719737191f2403887eb45636c67962
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    weight: 1
+  - animal:
+      m_AssetGUID: f5e62abea734d412f99209c2aaaf29d6
+      m_SubObjectName: 
+      m_SubObjectType: 
+      m_SubObjectGUID: 
+      m_EditorAssetChanged: 0
+    weight: 1
   minSpawnInterval: 1
   maxSpawnInterval: 2
   maxAliveAnimals: 60

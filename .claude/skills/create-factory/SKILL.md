@@ -32,6 +32,7 @@ At most 3 parameters; more go into a `{Product}SpawnRequest` struct in the featu
 **Prefab-based product, reused through the shared pool:**
 
 ```csharp
+using Code.Infrastructure.AssetManagement;
 using Code.Infrastructure.Pooling;
 using UnityEngine;
 using Zenject;
@@ -43,18 +44,20 @@ namespace Code.Gameplay.Features.{Feature}.Services
 		private readonly Transform _root = new GameObject("{Products}").transform;
 
 		private readonly IInstantiator _instantiator;
+		private readonly IAssetsService _assetsService;
 		private readonly IPrefabPool _prefabPool;
 
-		public {Name}Factory(IInstantiator instantiator, IPrefabPool prefabPool)
+		public {Name}Factory(IInstantiator instantiator, IAssetsService assetsService, IPrefabPool prefabPool)
 		{
 			_instantiator = instantiator;
+			_assetsService = assetsService;
 			_prefabPool = prefabPool;
 		}
 
 		public {Product} Create{Product}({Config} config, Vector3 at)
 		{
-			if (_prefabPool.TryGet(config.Prefab, out {Product} product) == false)
-				product = _instantiator.InstantiatePrefabForComponent<{Product}>(config.Prefab, _root);
+			if (_prefabPool.TryGet(config.Prefab.AssetGUID, out {Product} product) == false)
+				product = _instantiator.InstantiatePrefabForComponent<{Product}>(_assetsService.LoadPrefab(config.Prefab), _root);
 
 			product.Setup(config);
 			product.gameObject.SetActive(true);
@@ -84,7 +87,8 @@ Refresh Unity and read the console (`verify-in-unity` skill). If the factory cre
 
 - A factory is the **only** place that creates its product, and it returns the product **fully valid in one call** — set up, positioned, with its strategy, ready to tick.
 - Prefabs are instantiated only through `IInstantiator` (so Zenject injects into them). Never `Object.Instantiate`, never `DiContainer`.
-- Pooled products go through the shared `IPrefabPool`, keyed by prefab: `TryGet` before instantiating. Whoever removes the product calls `Put(prefab, product)`, which calls `IPooledHandler.OnPutToPool()` on its components and deactivates it.
+- Configs reference prefabs through `AssetReferencePrefab<{Product}>`, never directly, so loading a config does not load the prefab; the factory loads it with `IAssetsService.LoadPrefab` when it first instantiates.
+- Pooled products go through the shared `IPrefabPool`, keyed by the prefab's asset GUID: `TryGet` before instantiating. Whoever removes the product calls `Put(config.Prefab.AssetGUID, product)`, which calls `IPooledHandler.OnPutToPool()` on its components and deactivates it.
 - A factory may read configs and use `IRandomService`; it never makes gameplay decisions.
 - Never `switch` on the type of a game object. A `switch` on a polymorphic config type is allowed only with a test that covers every subclass.
 - Namespace: `Code.Gameplay.Features.{Feature}.Services`.

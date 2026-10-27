@@ -2,6 +2,7 @@ using Code.Gameplay.Features.Animals.Behaviours;
 using Code.Gameplay.Features.Animals.Configs;
 using Code.Gameplay.Features.Movement.Services;
 using Code.Gameplay.Features.Movement.Strategies;
+using Code.Infrastructure.AssetManagement;
 using Code.Infrastructure.Pooling;
 using UnityEngine;
 using Zenject;
@@ -13,17 +14,20 @@ namespace Code.Gameplay.Features.Animals.Services
 		private readonly Transform _root = new GameObject("Animals").transform;
 
 		private readonly IInstantiator _instantiator;
+		private readonly IAssetsService _assetsService;
 		private readonly IPrefabPool _prefabPool;
 		private readonly IAnimalRegistry _animalRegistry;
 		private readonly IMovementStrategyFactory _movementStrategyFactory;
 
 		public AnimalFactory(
 			IInstantiator instantiator,
+			IAssetsService assetsService,
 			IPrefabPool prefabPool,
 			IAnimalRegistry animalRegistry,
 			IMovementStrategyFactory movementStrategyFactory)
 		{
 			_instantiator = instantiator;
+			_assetsService = assetsService;
 			_prefabPool = prefabPool;
 			_animalRegistry = animalRegistry;
 			_movementStrategyFactory = movementStrategyFactory;
@@ -31,8 +35,8 @@ namespace Code.Gameplay.Features.Animals.Services
 
 		public Animal CreateAnimal(AnimalConfig config, Vector3 at, Vector3 direction)
 		{
-			if (_prefabPool.TryGet(config.Prefab, out Animal animal) == false)
-				animal = _instantiator.InstantiatePrefabForComponent<Animal>(config.Prefab, _root);
+			if (_prefabPool.TryGet(config.Prefab.AssetGUID, out Animal animal) == false)
+				animal = Instantiate(config);
 
 			animal.Setup(config);
 			IMovementStrategy movementStrategy = _movementStrategyFactory.CreateStrategy(config.Movement);
@@ -42,6 +46,13 @@ namespace Code.Gameplay.Features.Animals.Services
 			_animalRegistry.Add(animal);
 
 			return animal;
+		}
+
+		private Animal Instantiate(AnimalConfig config)
+		{
+			Animal prefab = _assetsService.LoadPrefab(config.Prefab);
+
+			return _instantiator.InstantiatePrefabForComponent<Animal>(prefab, _root);
 		}
 	}
 }
