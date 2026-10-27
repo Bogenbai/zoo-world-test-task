@@ -11,5 +11,6 @@ namespace Code.Ui.FloatingTexts
 
 		public void SetText(string value) => text.text = value;
 		public void SetScreenPosition(Vector2 position) => rectTransform.position = position;
+		public void SetAlpha(float alpha) => text.alpha = alpha;
 	}
 }
