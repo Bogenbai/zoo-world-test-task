@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1349896be8b248239418b5a8235d737, type: 3}
+  m_Name: Frog
+  m_EditorClassIdentifier: Assembly-CSharp::Code.Gameplay.Features.Animals.Configs.AnimalConfig
+  prefab: {fileID: 631313216210847259, guid: d442aeaf360104d64832edb77d2d7063, type: 3}
+  role: {fileID: 11400000, guid: c00a46b65abb34640a4f97061b01f933, type: 2}
+  spawnWeight: 2
+  movement:
+    rid: 2362995148698157160
+  references:
+    version: 2
+    RefIds:
+    - rid: 2362995148698157160
+      type: {class: JumpMovementConfig, ns: Code.Gameplay.Features.Movement.Configs, asm: Assembly-CSharp}
+      data:
+        jumpDistance: 2
+        jumpDuration: 0.2
+        jumpInterval: 1
+        maxTurnAngle: 60
