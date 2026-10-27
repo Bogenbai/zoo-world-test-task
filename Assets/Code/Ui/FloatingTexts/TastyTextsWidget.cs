@@ -21,6 +21,10 @@ namespace Code.Ui.FloatingTexts
 		[SerializeField, Min(0f)]
 		private float lifetime = 1f;
 
+		[SerializeField, Min(0f)]
+		[Tooltip("The last part of the lifetime, during which the text fades out instead of vanishing abruptly.")]
+		private float fadeDuration = 0.3f;
+
 		[SerializeField]
 		[Tooltip("Shift on screen in pixels, so the text sits under the predator instead of covering it.")]
 		private Vector2 screenOffset = new(0f, -30f);
@@ -73,7 +77,7 @@ namespace Code.Ui.FloatingTexts
 				if (entry.TimeLeft <= 0f)
 					Release(i);
 				else
-					PlaceUnderTarget(entry);
+					Refresh(entry);
 			}
 		}
 
@@ -84,7 +88,7 @@ namespace Code.Ui.FloatingTexts
 
 			FloatingTextEntry entry = new(predator, text, lifetime);
 			_texts.Add(entry);
-			PlaceUnderTarget(entry);
+			Refresh(entry);
 		}
 
 		private void HandleAnimalDied(Animal animal)
@@ -96,10 +100,11 @@ namespace Code.Ui.FloatingTexts
 			}
 		}
 
-		private void PlaceUnderTarget(FloatingTextEntry entry)
+		private void Refresh(FloatingTextEntry entry)
 		{
 			Vector2 screenPosition = _camera.WorldToScreenPoint(entry.Target.transform.position);
 			entry.Text.SetScreenPosition(screenPosition + screenOffset);
+			entry.Text.SetAlpha(Mathf.Clamp01(entry.TimeLeft / fadeDuration));
 		}
 
 		private void Release(int index)
