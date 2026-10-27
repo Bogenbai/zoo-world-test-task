@@ -34,7 +34,8 @@ Read `mcpforunity://editor/state` and check `data.editor.play_mode.is_playing`. 
 ### 6. Check behaviour in play mode (when the change is visible in game)
 
 - Enter play mode with `manage_editor`, wait a few seconds, read the console again.
-- Inspect what matters for the change: `find_gameobjects` for spawned objects, `manage_camera` / screenshots for visuals.
+- If `Time.time` does not advance, the unfocused editor has paused the game. Set `Application.runInBackground = true` through `execute_code` for this play session only; never change Player Settings for it.
+- Inspect what matters for the change: `find_gameobjects` for spawned objects, `manage_camera` / screenshots for visuals. Screenshots must be saved inside the project: use `output_folder: Temp/Captures`, which git ignores.
 - Exit play mode when done.
 
 ### 7. Check the diff

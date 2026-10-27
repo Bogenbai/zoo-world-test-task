@@ -34,8 +34,13 @@ namespace Code.Gameplay.Features.{Feature}.Editor.EditModeTests
 		[Test]
 		public void {Subject}_Should{Behaviour}()
 		{
-			{Result} result = _{classUnderTest}.{Method}({arguments});
+			// Arrange
+			{Argument} argument = {setup};
 
+			// Act
+			{Result} result = _{classUnderTest}.{Method}(argument);
+
+			// Assert
 			result.Should().Be({expected}, "{why this is the expected result}");
 		}
 	}
@@ -59,8 +64,8 @@ Run the EditMode tests through Unity MCP (`run_tests`, then read the job result)
 
 - Test names read `Subject_ShouldBehaviour` (`ExpiredTimer_ShouldFire`, `EmptyPool_ShouldInstantiate`).
 - Every assertion carries a reason string.
-- Arrange–act–assert separated by empty lines; no comments.
-- No scene, no `GameObject`s unless the test is about a MonoBehaviour adapter; no `Time.*`, no real randomness.
+- Every test is split into `// Arrange`, `// Act` and `// Assert` sections with an empty line between them. Leave out `// Arrange` when there is nothing to set up. A loop that both acts and checks is split: collect the results under `// Act`, check them under `// Assert`.
+- No scene; no `Time.*`, no real randomness. `GameObject`s only when the code under test takes MonoBehaviours: create them through a disposable test helper and destroy them in `[TearDown]`, so the open scene stays clean. A MonoBehaviour declared in an `Editor` folder cannot be added to a `GameObject`.
 - Floating-point checks use `BeApproximately`.
 - Namespace mirrors the folder: `Code.Gameplay.Features.{Feature}.Editor.EditModeTests`.
 - Follow `.claude/rules/CodingGuidelines.md`.

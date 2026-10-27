@@ -41,23 +41,12 @@ namespace Code.Gameplay.Features.{Feature}.Configs
 
 If the `[CreateAssetMenu]` line goes over 120 characters, put each argument on its own line.
 
-A config that is one of many assets of its type (a collection) also gets a unique id:
-
-```csharp
-[SerializeField, ID]
-private string id;
-
-public string Id => id;
-```
-
-`[ID]` is `Code.Infrastructure.Identifiers.IDAttribute`; its drawer assigns the GUID from the inspector. Through Unity MCP, set the field to `System.Guid.NewGuid().ToString()` when creating the asset. Never regenerate an existing id.
-
 ### 3. Expose it through IConfigsService
 
 Read `Assets/Code/Infrastructure/ConfigsManagement/IConfigsService.cs` and `ConfigsService.cs`, then:
 
 - **A single config** (one asset of its type): add a key to `Constants.Addressables.Keys` (snake_case with a `_config` suffix), load it in `ConfigsService.Initialize()` with `_assetsService.Load<T>(key)`, add `Get{ConfigName}()`.
-- **A collection** (many assets of one type): add a label to `Constants.Addressables.Labels` (snake_case, plural, `_configs`), load with `_assetsService.LoadAllByLabel<T>(label)` into a dictionary keyed by the config's `Id`, add `Get{Name}Configs()` / `Get{Name}Config(id)`.
+- **A collection** (many assets of one type): add a label to `Constants.Addressables.Labels` (snake_case, plural, `_configs`), load with `_assetsService.LoadAllByLabel<T>(label)` into a list, add `Get{Name}Configs()`.
 
 ### 4. Create the asset
 
@@ -78,6 +67,7 @@ Refresh Unity, read the console, run the EditMode tests (`verify-in-unity` skill
 - **Data only.** No methods, no logic, no lookups, no computed properties. Derived values go into a service or an extension method in the feature's `Extensions/` folder.
 - All fields are `[SerializeField] private` with public getter properties.
 - `Tooltip`s explain *why* a value is what it is.
+- Prefabs and other heavy assets are referenced through `AssetReference` / `AssetReferencePrefab<T>` (`Code.Infrastructure.AssetManagement`), not directly: a direct reference loads the asset together with the config. Other configs are referenced directly.
 - Read-only at runtime. Runtime state never lives in a config.
 - Namespace mirrors the folder: `Code.Gameplay.Features.{Feature}.Configs`.
 - Follow `.claude/rules/CodingGuidelines.md`.
