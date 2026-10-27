@@ -41,23 +41,12 @@ namespace Code.Gameplay.Features.{Feature}.Configs
 
 If the `[CreateAssetMenu]` line goes over 120 characters, put each argument on its own line.
 
-A config that is one of many assets of its type (a collection) also gets a unique id:
-
-```csharp
-[SerializeField, ID]
-private string id;
-
-public string Id => id;
-```
-
-`[ID]` is `Code.Infrastructure.Identifiers.IDAttribute`; its drawer assigns the GUID from the inspector. Through Unity MCP, set the field to `System.Guid.NewGuid().ToString()` when creating the asset. Never regenerate an existing id.
-
 ### 3. Expose it through IConfigsService
 
 Read `Assets/Code/Infrastructure/ConfigsManagement/IConfigsService.cs` and `ConfigsService.cs`, then:
 
 - **A single config** (one asset of its type): add a key to `Constants.Addressables.Keys` (snake_case with a `_config` suffix), load it in `ConfigsService.Initialize()` with `_assetsService.Load<T>(key)`, add `Get{ConfigName}()`.
-- **A collection** (many assets of one type): add a label to `Constants.Addressables.Labels` (snake_case, plural, `_configs`), load with `_assetsService.LoadAllByLabel<T>(label)` into a dictionary keyed by the config's `Id`, add `Get{Name}Configs()` / `Get{Name}Config(id)`.
+- **A collection** (many assets of one type): add a label to `Constants.Addressables.Labels` (snake_case, plural, `_configs`), load with `_assetsService.LoadAllByLabel<T>(label)` into a list, add `Get{Name}Configs()`.
 
 ### 4. Create the asset
 
