@@ -1,6 +1,6 @@
 # Zoo World
 
-Top-down 3D simulation in Unity 6000.3.6f1 (URP). An animal spawns every 1–2 seconds and wanders around on its own: frogs jump, snakes crawl. Everyone turns back at the screen edge.
+Top-down 3D simulation in Unity 6000.3.6f1 (URP). An animal spawns every 1–2 seconds and wanders around on its own: frogs jump, snakes crawl. Everyone turns back at the screen edge. Two frogs bounce off each other, a snake eats a frog, and of two snakes only one survives.
 
 ## Running
 
@@ -10,18 +10,21 @@ Configs come from Addressables, so build the Addressables content (Groups → Bu
 
 ## Adding an animal
 
-1. Make a prefab variant of `Assets/Prefabs/Animals/AnimalBase.prefab`.
-2. Create an `AnimalConfig` in `Assets/AddressableResources/Configs/Animals` (Create → Zoo World → Configs → Animal Config) and fill in the prefab, role, spawn weight and movement.
+1. Make a prefab variant of `Assets/AddressableResources/Visuals/Animals/AnimalBase.prefab` in the same folder.
+2. Create an `AnimalConfig` in `Assets/AddressableResources/Configs/Animals` (Create → Zoo World → Configs → Animal Config) and fill in the prefab, role and movement.
+3. Add the config to the `AnimalSpawner` in the scene with a spawn weight.
 
-No code needed. The folder is labeled in Addressables, so the config is picked up on its own.
+No code needed. Both folders are addressable as a whole, so the new prefab and config show up in the reference pickers right away.
 
 A new movement type is a `MovementConfig` subclass with data, an `IMovementStrategy` and one `case` in `MovementStrategyFactory`. If the `case` is missing, `MovementStrategyFactoryTests` fails.
+
+A new food chain role is a `FoodChainRoleConfig` asset with the list of roles it eats. A new thing that happens on contact is an `ICollisionRule` and one line in `GameplayInstaller`.
 
 ## Structure
 
 Zenject with two installers: `BootstrapInstaller` (ProjectContext) for infrastructure and `GameplayInstaller` (scene) for gameplay. Code is split by feature in `Assets/Code/Gameplay/Features`.
 
-Every species uses the same `Animal` component, and what makes them different is data in `AnimalConfig`. Movement is a separate `RigidbodyMovement` component with its own `IMovementStrategy` instance. Animals are created only in `AnimalFactory` and reused through a pool. Spawning is an `AnimalSpawner` object in the scene, so the hierarchy shows what runs the game. `Time` and `Random` are behind services, so strategies and the screen-bounds math are tested without a scene.
+Every species uses the same `Animal` component, and what makes them different is data in `AnimalConfig`. Movement is a separate `RigidbodyMovement` component with its own `IMovementStrategy` instance. Animals are created only in `AnimalFactory`, removed only in `AnimalDeathService`, and reused through a pool. Spawning is an `AnimalSpawner` object in the scene with the list of animals it spawns, so the hierarchy shows what runs the game. `Time` and `Random` are behind services, so strategies and the screen-bounds math are tested without a scene.
 
 ## Decisions
 
@@ -29,6 +32,11 @@ Every species uses the same `Animal` component, and what makes them different is
 - Velocity is set directly each physics step rather than through forces. That keeps the jump length and crawl speed exact no matter the mass or timestep.
 - Movement settings sit inside `AnimalConfig` via `[SerializeReference]`, so one species is one asset and the movement type is a dropdown. The downside is an extra package and `[MovedFrom]` when a config class gets renamed. Separate ScriptableObjects would pay off if many species shared the same settings.
 - `MovementStrategyFactory` switches on the config type. I didn't want logic in configs, and a reflection-based lookup is harder to follow. Strategies get the whole config and are created through `IInstantiator`, so the factory doesn't carry their dependencies. Neither the compiler nor Zenject validation checks that, so the factory test builds every strategy through a real container.
-- The pool is a small generic one keyed by prefab, so the "Tasty!" texts can use it too. Zenject's `MemoryPool` didn't fit because it is bound to one prefab in an installer, and here prefabs come from configs.
+- Configs and the spawner point to prefabs and configs through `AssetReference`, not direct links. A config stays light, because its prefab loads only when the first animal of that kind is created. A direct link from the scene would also put a second copy of each config into the build next to the Addressables one.
+- The pool is a small generic one keyed by the prefab's asset GUID, so the "Tasty!" texts can use it too. Zenject's `MemoryPool` didn't fit because it is bound to one prefab in an installer, and here prefabs come from configs.
 - There is no shared balance config. Spawn settings are fields on `AnimalSpawner` in the scene, and the screen margin has its own small `WorldConfig`. A single "GameBalance" asset was mixing unrelated features and would only keep growing.
+- Roles are data: each role lists what it eats. The three rules from the task come out of two assets, Prey eating nothing and Predator eating both, so a new role or a different food web needs no code. An enum with a switch per pair would grow with every role.
+- A contact goes through a chain of rules, predation first and bounce last, until one of them handles it. The alternative was a table of outcomes per role pair, but a new mechanic like shooting on contact would still need code there, while here it is one more rule.
+- Both bodies get `OnCollisionEnter`, so only the animal with the smaller `EntityId` handles the pair, and an animal eaten earlier in the same physics step is skipped.
+- Bounced prey are left to physics for half a second with strong damping, so they visibly fly apart and come to a stop, then stand still for another half second before moving on in the direction they flew. The timings live on the movement component of the prefab, so a heavier animal can be tuned in its variant.
 - Configs load synchronously. It's one scene, so there is nothing to wait for. Async loading is the first thing I'd add if content grew.
