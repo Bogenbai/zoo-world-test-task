@@ -61,7 +61,7 @@ namespace Code.Gameplay.Features.Animals.Behaviours
 
 			_timeUntilNextSpawn = _randomService.Range(minSpawnInterval, maxSpawnInterval);
 
-			if (_animalRegistry.GetAliveCount() >= maxAliveAnimals)
+			if (_animalRegistry.GetCount() >= maxAliveAnimals)
 				return;
 
 			SpawnRandomAnimal();

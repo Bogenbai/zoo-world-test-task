@@ -5,9 +5,11 @@ namespace Code.Gameplay.Features.Animals.Services
 {
 	public class AnimalRegistry : IAnimalRegistry
 	{
-		private readonly List<Animal> _aliveAnimals = new();
+		private readonly HashSet<Animal> _animals = new();
 
-		public void Add(Animal animal) => _aliveAnimals.Add(animal);
-		public int GetAliveCount() => _aliveAnimals.Count;
+		public void Add(Animal animal) => _animals.Add(animal);
+		public bool Remove(Animal animal) => _animals.Remove(animal);
+		public bool Contains(Animal animal) => _animals.Contains(animal);
+		public int GetCount() => _animals.Count;
 	}
 }

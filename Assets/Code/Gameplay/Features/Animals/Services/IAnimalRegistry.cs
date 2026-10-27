@@ -5,6 +5,8 @@ namespace Code.Gameplay.Features.Animals.Services
 	public interface IAnimalRegistry
 	{
 		void Add(Animal animal);
-		int GetAliveCount();
+		bool Remove(Animal animal);
+		bool Contains(Animal animal);
+		int GetCount();
 	}
 }
